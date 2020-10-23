@@ -50,4 +50,3 @@ for i in range(numClientes):
 for t in threads:
     t.start()
 sock.close()
-f.close()
