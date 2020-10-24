@@ -36,7 +36,12 @@ log.write('Tamaño Archivo: ' + str(os.path.getsize(path + filename)) + '\n' )
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 buffer = 1024
-serverAddress = ('localhost', 10000)
+
+EC2_PUBLIC_IP = '54.91.103.85'
+UDP_IP = socket.gethostbyaddr(EC2_PUBLIC_IP)[0]
+#TCP_IP='192.168.1.12'
+UDP_PORT = 60001
+serverAddress = (UDP_PORT, 10000)
 sock.bind(serverAddress)
 threads = []
 
