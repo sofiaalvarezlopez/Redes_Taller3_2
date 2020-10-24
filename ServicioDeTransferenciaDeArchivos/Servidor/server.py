@@ -37,7 +37,7 @@ log.write('Tamaño Archivo: ' + str(os.path.getsize(path + filename)) + '\n' )
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 buffer = 1024
 
-EC2_PUBLIC_IP = '54.242.163.17'
+EC2_PUBLIC_IP = '107.21.72.235'
 UDP_IP = socket.gethostbyaddr(EC2_PUBLIC_IP)[0]
 #TCP_IP='192.168.1.12'
 UDP_PORT = 60001
