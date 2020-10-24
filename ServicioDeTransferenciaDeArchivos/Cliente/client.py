@@ -29,23 +29,20 @@ try:
     while data:
         f.write(data)
         digestGenerado.update(data)
-        print(digestGenerado)
         data,addr = sock.recvfrom(buffer)
         if (data == END_TRANSMISSION):
-            print('esta aca')
             fechaFinTransmision = str(datetime.datetime.now())
             sock.sendto(fechaFinTransmision.encode(), addr)
             print('Fecha fin transmision archivo: ', fechaFinTransmision)
             f.close()
             print('Comando recibido: ', repr(END_TRANSMISSION))
             break
-
     digestG = digestGenerado.hexdigest().encode()
     print(digestG)
     digestRecibido, addr = sock.recvfrom(buffer)
     print(digestRecibido)
     if not compare_digest(digestG, digestRecibido):
-        sock.sendto(ERR, serverAddress)
+        sock.sendto(ERR, addr)
         #os.remove(archivoElegido)
         print('Comando enviado: ', repr(ERR))
         print('La integridad del archivo no pudo ser verificada. Finalizando conexion.')

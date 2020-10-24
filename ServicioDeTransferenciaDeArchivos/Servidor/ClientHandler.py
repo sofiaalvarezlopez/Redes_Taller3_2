@@ -16,12 +16,12 @@ END_TRANSMISSION = b'END_TRANSMISSION'
 FIN = b'FIN'
 
 class ClientHandler(Thread):
-    def __init__(self, address, sock, archivoElegido):
+    def __init__(self, address, sock, archivoElegido, log):
         Thread.__init__(self)
         self.address = address
         self.sock = sock
         self.archivoElegido = archivoElegido
-        #self.log = log
+        self.log = log
         #self.scanner = scanner
         print('Iniciando un nuevo thread para {}'.format(address))
         self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -44,12 +44,8 @@ class ClientHandler(Thread):
         while data:
             if(self.s.sendto(data,self.address)):
                 digest.update(data)
-                print(digest)
-                print ("sending ...")
             data = f.read(BUFFER_SIZE)
-        print('hello there')
         self.s.sendto(END_TRANSMISSION, self.address)
-        print('hello there')
         fechaFinTransmision, _ = self.s.recvfrom(BUFFER_SIZE)
         duracionTransmision = datetime.datetime.strptime(fechaFinTransmision.decode(), '%Y-%m-%d %H:%M:%S.%f') - fechaInicioTransmision
         print("La duracion total de la transmision fue de: %f s" %(duracionTransmision.total_seconds())) 
@@ -64,6 +60,8 @@ class ClientHandler(Thread):
         #print('Numero de bytes enviados: ', stats['bytes_sent'])
         #print('El cliente ' + self.ip + ':' + str(self.port) + ' recibio ' + str(stats['bytes_received']) + ' bytes')
 
+        self.log.write(self.address[0] + ':' + str(self.address[1]) + ';' + repr(entregaExitosa)[2:-1] + ';' + str(duracionTransmision.total_seconds()) + ';\n')
+        
         print('Finalizando exitosamente la comunicacion con: ' + self.address[0] + ':' + str(self.address[1]))
         print('Enviando comando: ', repr(FIN))
         self.s.sendto(FIN, self.address)

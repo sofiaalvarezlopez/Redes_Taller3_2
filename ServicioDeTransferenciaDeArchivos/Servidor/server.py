@@ -44,7 +44,7 @@ for i in range(numClientes):
     print('Esperando mensaje')
     data, address = sock.recvfrom(buffer)
     print('se recibio conexion de {} con la informacion {}'.format(address, data))
-    newThread = ClientHandler(address, sock, path + filename)
+    newThread = ClientHandler(address, sock, path + filename, log)
     threads.append(newThread)
 
 for t in threads:
