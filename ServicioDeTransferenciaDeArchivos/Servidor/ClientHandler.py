@@ -39,34 +39,32 @@ class ClientHandler(Thread):
         f = open(self.archivoElegido, 'rb')
         data = f.read(BUFFER_SIZE)
         self.s.sendto(self.archivoElegido[11:].encode(), self.address)
-        self.s.sendto(data, self.address)
         digest = hashlib.md5()
-        digest.update(data)
-        data = f.read(BUFFER_SIZE)
         fechaInicioTransmision = datetime.datetime.now()
         while data:
             if(self.s.sendto(data,self.address)):
                 digest.update(data)
+                print(digest)
                 print ("sending ...")
             data = f.read(BUFFER_SIZE)
         print('hello there')
         self.s.sendto(END_TRANSMISSION, self.address)
         print('hello there')
         fechaFinTransmision, _ = self.s.recvfrom(BUFFER_SIZE)
-        print('se ha enviado el digest')
         duracionTransmision = datetime.datetime.strptime(fechaFinTransmision.decode(), '%Y-%m-%d %H:%M:%S.%f') - fechaInicioTransmision
         print("La duracion total de la transmision fue de: %f s" %(duracionTransmision.total_seconds())) 
 
+        print('se ha enviado el digest')
         digestE = digest.hexdigest().encode()
         self.s.sendto(digestE, self.address)
 
         entregaExitosa, _ = self.s.recvfrom(BUFFER_SIZE)
         print('Comando recibido: ', repr(entregaExitosa))
 
-        print('Numero de bytes enviados: ', stats['bytes_sent'])
-        print('El cliente ' + self.ip + ':' + str(self.port) + ' recibio ' + str(stats['bytes_received']) + ' bytes')
+        #print('Numero de bytes enviados: ', stats['bytes_sent'])
+        #print('El cliente ' + self.ip + ':' + str(self.port) + ' recibio ' + str(stats['bytes_received']) + ' bytes')
 
-        print('Finalizando exitosamente la comunicacion con: ' + self.ip + ':' + str(self.port))
+        print('Finalizando exitosamente la comunicacion con: ' + self.address[0] + ':' + str(self.address[1]))
         print('Enviando comando: ', repr(FIN))
-        self.sock.sendto(FIN, address)
-        self.sock.close()
+        self.s.sendto(FIN, self.address)
+        self.s.close()

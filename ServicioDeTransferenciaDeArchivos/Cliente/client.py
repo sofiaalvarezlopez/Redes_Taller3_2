@@ -25,12 +25,11 @@ try:
 
     digestGenerado = hashlib.md5()
 
-    digestGenerado.update(data)
     data, address = sock.recvfrom(buffer)
     while data:
         f.write(data)
         digestGenerado.update(data)
-        print(data)
+        print(digestGenerado)
         data,addr = sock.recvfrom(buffer)
         if (data == END_TRANSMISSION):
             print('esta aca')
@@ -43,7 +42,7 @@ try:
 
     digestG = digestGenerado.hexdigest().encode()
     print(digestG)
-    digestRecibido, _ = sock.recvfrom(buffer)
+    digestRecibido, addr = sock.recvfrom(buffer)
     print(digestRecibido)
     if not compare_digest(digestG, digestRecibido):
         sock.sendto(ERR, serverAddress)
@@ -53,7 +52,7 @@ try:
         sock.close()
         exit()
 
-    sock.sendto(OK, serverAddress)
+    sock.sendto(OK, addr)
 
     print('La integridad del archivo pudo ser verificada correctamente.')
     print('Comando enviado: ', repr(OK))
@@ -62,11 +61,10 @@ try:
     fin, _ = sock.recvfrom(buffer)
     if(repr(fin) != repr(FIN)):
         print('La tarea ha fallado exitosamente')    
-        s.close()
+        sock.close()
         exit()
     print('Comando recibido: ' + repr(FIN))
     print('Protocolo finalizado exitosamente. Gracias por conectarse al servidor.')
-    s.close()
     exit()
     
 finally:
