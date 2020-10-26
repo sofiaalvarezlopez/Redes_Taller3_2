@@ -1,0 +1,4 @@
+{
+    "name": "TV Sports",
+    "description": "Enjoy every goal, point or match won!",
+}

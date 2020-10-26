@@ -1,0 +1,4 @@
+{
+    "name": "TV Kids",
+    "description": "Enjoy the series and movies you love! Full of fantasy and fun!",
+}
