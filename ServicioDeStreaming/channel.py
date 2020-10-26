@@ -39,12 +39,14 @@ class Channel:
         with s.socket(s.AF_INET, s.SOCK_DGRAM) as SOCK:
             SOCK.setsockopt(s.IPPROTO_IP, s.IP_MULTICAST_TTL, TTL)
 
-            while True:
+            while self.stream:
                 n = 0
                 for f in self.frames:
                     time.sleep(0.005)
                     SOCK.sendto(struct.pack('iii', n, f.shape[0], f.shape[1]), self.host)
                     r = 1
+                    if not self.stream:
+                        break
                     for row in f:
                         SOCK.sendto(struct.pack('i', r) + row.tobytes(), self.host)
                         r += 1

@@ -1,4 +1,4 @@
-import socket as s, struct, os, json
+import socket as s, struct, os, json, keyboard
 from channel import Channel
 from threading import Thread
 
@@ -24,7 +24,7 @@ threads = []
 
 def send_channels_info():
     info = []
-    print('Loading channels info')
+    #print('Loading channels info')
     for channel in channels:
         cha = {}
         cha['name'] = channel.name
@@ -32,12 +32,12 @@ def send_channels_info():
         cha['port'] = channel.host[1]
         info.append(cha)
     infostr = json.dumps(info)
-    print('Broadcasting channels info')
+    #print('Broadcasting channels info')
     while STATE:
         SOCK.sendto(infostr.encode('utf-8'), (multicast_ip,info_port))
 
 def create_channels():
-    print('Searching for channels')
+    print('Searching for channels:')
     fcha = os.path.join(CHANNELS_PATH, CHANNELS_INFO_FILE)
     with open(fcha, 'r') as infof:
         name = infof.readline()
@@ -47,33 +47,44 @@ def create_channels():
                 continue
             new_channel = Channel(name.strip(), (multicast_ip, start_port + len(channels) + 1))
             channels.append(new_channel)
-            print('Channel', name, 'found. Transmitting on', new_channel.host[1])
+            print('\tChannel "' + name + '" found. Transmitting on', new_channel.host[1])
             name = infof.readline()
+        if len(channels) == 0:
+            print('\tNo channel found')
     print('Channels search done')
 
 def send_basic_info():
-    print('Broadcasting basic info')
+    #print('Broadcasting basic info')
     while STATE:
         SOCK.sendto(('Channel info on '+str(start_port)).encode('utf-8'), (multicast_ip,start_port))
 
 def start_channels():
+    print("Starting channels:")
     for channel in channels:
-        print('Loading channel', channel.name, 'videos')
+        print('\tLoading channel', channel.name, 'videos')
         channel.load_videos()
-        print('Channel', channel.name, 'videos loaded')
+        print('\tChannel', channel.name, 'videos loaded')
         t = Thread(target=channel.start_streaming)
-        print('Channel', channel.name, 'streaming')
+        print('\tChannel', channel.name, 'streaming')
         t.start()
         threads.append(t)
 
 def stop_channels():
-    print('Stopping channels streaming')
+    print('Stopping channels streaming:')
     for channel in channels:
         channel.stop_streaming()
-        print('Channel', channel.name, 'stopped')
+        print('\tChannel', channel.name, 'stopped')
     print('Channels streaming stopped')
 
-print('Streaming...')
+def handle_key(key):
+    global STATE
+    if key.name == "esc":
+        print("Stopping...")
+        stop_channels()
+        STATE = False
+
+
+keyboard.on_press(handle_key)
 
 create_channels()
 start_channels()
@@ -81,3 +92,5 @@ t1 = Thread(target=send_basic_info)
 t1.start()
 t2 = Thread(target=send_channels_info)
 t2.start()
+print('Streaming...')
+print("Press ESC to stop server")
