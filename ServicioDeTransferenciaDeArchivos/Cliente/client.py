@@ -8,6 +8,7 @@ import os
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 serverAddress = ('107.21.72.235', 10000)
+#serverAddress = ('localhost', 10000)
 BEG_RECV = b'BEG_RECV'
 OK = b'OK'
 ERR = b'ERR'
