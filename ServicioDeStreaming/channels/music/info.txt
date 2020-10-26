@@ -1,4 +1,5 @@
 {
     "name": "TV Music",
     "description": "Watch and listen the last music videos with TVM!",
+    "videos": ["1.mp4"]
 }

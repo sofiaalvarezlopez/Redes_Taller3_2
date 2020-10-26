@@ -1,53 +1,83 @@
-import socket as s
-import numpy as np
-import time
-import struct
-import cv2
+import socket as s, struct, os, json
+from channel import Channel
+from threading import Thread
+
+CHANNELS_PATH = os.path.join(os.path.dirname(os.path.relpath(__file__)), 'channels')
+CHANNELS_INFO_FILE = 'channels.txt'
 
 print('Welcome to Streaming Server!')
 print('Starting...')
 
 SOCK = s.socket(s.AF_INET, s.SOCK_DGRAM)
-BUFFER = 1024
 TTL = 1
 
 multicast_ip = '224.1.1.1'
-port = 7000
+start_port = 7000
+info_port = 6999
 
-path = 'channels/music/1.mp4'
-
-v = cv2.VideoCapture(path)
-frames = []
-
-print('Loading video...')
-
-while v.isOpened():
-    ret, f = v.read()
-    if ret:
-        #fl = []
-        #f = cv2.resize(f, (320, 180))
-        # f = cv2.cvtColor(f, cv2.COLOR_BGR2GRAY)
-        #for i in range(f.shape[2]):
-            # print(f[:,:,i].shape)
-        #    fl.append(f[:,:,i])
-        frames.append(f)
-    else:
-        break
-
-print('Video loaded')
-
-#SOCK.bind((multicast_ip, port))
 SOCK.setsockopt(s.IPPROTO_IP, s.IP_MULTICAST_TTL, TTL)
+
+STATE = True
+
+channels = []
+threads = []
+
+def send_channels_info():
+    info = []
+    print('Loading channels info')
+    for channel in channels:
+        cha = {}
+        cha['name'] = channel.name
+        cha['desc'] = channel.desc
+        cha['port'] = channel.host[1]
+        info.append(cha)
+    infostr = json.dumps(info)
+    print('Broadcasting channels info')
+    while STATE:
+        SOCK.sendto(infostr.encode('utf-8'), (multicast_ip,info_port))
+
+def create_channels():
+    print('Searching for channels')
+    fcha = os.path.join(CHANNELS_PATH, CHANNELS_INFO_FILE)
+    with open(fcha, 'r') as infof:
+        name = infof.readline()
+        while name:
+            if name.startswith('!'):
+                name = infof.readline()
+                continue
+            new_channel = Channel(name.strip(), (multicast_ip, start_port + len(channels) + 1))
+            channels.append(new_channel)
+            print('Channel', name, 'found. Transmitting on', new_channel.host[1])
+            name = infof.readline()
+    print('Channels search done')
+
+def send_basic_info():
+    print('Broadcasting basic info')
+    while STATE:
+        SOCK.sendto(('Channel info on '+str(start_port)).encode('utf-8'), (multicast_ip,start_port))
+
+def start_channels():
+    for channel in channels:
+        print('Loading channel', channel.name, 'videos')
+        channel.load_videos()
+        print('Channel', channel.name, 'videos loaded')
+        t = Thread(target=channel.start_streaming)
+        print('Channel', channel.name, 'streaming')
+        t.start()
+        threads.append(t)
+
+def stop_channels():
+    print('Stopping channels streaming')
+    for channel in channels:
+        channel.stop_streaming()
+        print('Channel', channel.name, 'stopped')
+    print('Channels streaming stopped')
 
 print('Streaming...')
 
-while True:
-    n = 0
-    for f in frames:
-        time.sleep(0.005)
-        SOCK.sendto(struct.pack('iii', n, f.shape[0], f.shape[1]), (multicast_ip,port))
-        r = 1
-        for row in f:
-            SOCK.sendto(struct.pack('i', r) + row.tobytes(), (multicast_ip,port))
-            r += 1
-        n += 1
+create_channels()
+start_channels()
+t1 = Thread(target=send_basic_info)
+t1.start()
+t2 = Thread(target=send_channels_info)
+t2.start()

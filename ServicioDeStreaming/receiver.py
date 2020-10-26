@@ -19,11 +19,6 @@ class Frame:
             self.frame = nprow
         else:
             self.frame = np.append(self.frame, nprow, axis=0)
-            # while len(self.frame) <= row:
-            #     if len(self.frame) == row:
-            #         self.frame = np.append(self.frame, nprow, axis=0)
-            #     else:
-            #         self.frame = np.append(self.frame, np.zeros((1, self.width, 3)), axis=0)
 
 class BufferCanal:
     def __init__(self, sock):
@@ -41,6 +36,8 @@ class BufferCanal:
         p1 = []
         while self.cent:
             msg = self.sock.recvfrom(h*p*8+16)
+            #print('Hola', n)
+            n += 1
             if len(msg[0]) == 12:
                 num, w, h = struct.unpack('iii', msg[0])
                 if len(f) > 0:

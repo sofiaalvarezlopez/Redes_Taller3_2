@@ -1,4 +1,5 @@
 {
     "name": "TV News",
     "description": "Stay updated with the best news channel in the world!",
+    "videos": ["1.mp4"]
 }
