@@ -26,39 +26,39 @@ class ClientHandler(Thread):
         self.monitor = Monitor(serverAddress[0], serverAddress[1], address, archivoElegido)
         #self.scanner = scanner
         print('Iniciando un nuevo thread para {}'.format(address))
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.s.setsockopt(
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.sock.setsockopt(
         socket.SOL_SOCKET,
         socket.SO_SNDBUF,
         BUFFER_SIZE)
      
-        self.s.setsockopt(
+        self.sock.setsockopt(
         socket.SOL_SOCKET,
-        socket.SO_RCVBUF,
+        socket.SO_RCVBUcF,
         BUFFER_SIZE)
 
     def run(self):
         f = open(self.archivoElegido, 'rb')
         data = f.read(BUFFER_SIZE)
-        self.s.sendto(self.archivoElegido[11:].encode(), self.address)
+        self.sock.sendto(self.archivoElegido[11:].encode(), self.address)
         digest = hashlib.md5()
         fechaInicioTransmision = datetime.datetime.now()
         self.monitor.start()
         while data:
-            if(self.s.sendto(data,self.address)):
+            if(self.sock.sendto(data,self.address)):
                 self.monitor.addPacket(len(data))
                 digest.update(data)
             data = f.read(BUFFER_SIZE)
-        self.s.sendto(END_TRANSMISSION, self.address)
-        fechaFinTransmision, _ = self.s.recvfrom(BUFFER_SIZE)
+        self.sock.sendto(END_TRANSMISSION, self.address)
+        fechaFinTransmision, _ = self.sock.recvfrom(BUFFER_SIZE)
         duracionTransmision = datetime.datetime.strptime(fechaFinTransmision.decode(), '%Y-%m-%d %H:%M:%S.%f') - fechaInicioTransmision
         print("La duracion total de la transmision fue de: %f s" %(duracionTransmision.total_seconds())) 
 
         print('se ha enviado el digest')
         digestE = digest.hexdigest().encode()
-        self.s.sendto(digestE, self.address)
+        self.sock.sendto(digestE, self.address)
 
-        entregaExitosa, _ = self.s.recvfrom(BUFFER_SIZE)
+        entregaExitosa, _ = self.sock.recvfrom(BUFFER_SIZE)
         if entregaExitosa == OK:
             self.monitor.finish(True)
         else:
