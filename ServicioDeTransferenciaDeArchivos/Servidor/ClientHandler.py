@@ -74,5 +74,5 @@ class ClientHandler(Thread):
         
         print('Finalizando exitosamente la comunicacion con: ' + self.address[0] + ':' + str(self.address[1]))
         print('Enviando comando: ', repr(FIN))
-        self.s.sendto(FIN, self.address)
-        self.s.close()
+        self.sock.sendto(FIN, self.address)
+        self.sock.close()
