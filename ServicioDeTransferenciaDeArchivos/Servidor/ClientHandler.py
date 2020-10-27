@@ -34,7 +34,7 @@ class ClientHandler(Thread):
      
         self.sock.setsockopt(
         socket.SOL_SOCKET,
-        socket.SO_RCVBUcF,
+        socket.SO_RCVBUF,
         BUFFER_SIZE)
 
     def run(self):

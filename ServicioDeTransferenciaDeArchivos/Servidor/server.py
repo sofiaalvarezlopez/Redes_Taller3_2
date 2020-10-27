@@ -40,7 +40,6 @@ buffer = 1024
 EC2_PUBLIC_IP = '54.226.145.99'
 UDP_IP = socket.gethostbyaddr(EC2_PUBLIC_IP)[0]
 #UDP_IP = 'localhost'
-UDP_PORT = 60001
 serverAddress = (UDP_IP, 10000)
 sock.bind(serverAddress)
 threads = []

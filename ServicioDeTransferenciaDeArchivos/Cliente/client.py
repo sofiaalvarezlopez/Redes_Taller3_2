@@ -20,8 +20,6 @@ try:
     print('enviado datos {}'.format(BEG_RECV))
     sent = sock.sendto(BEG_RECV, serverAddress)
 
-    sock.settimeout(2)
-    print ("si no funciona lloro")
     data, address = sock.recvfrom(buffer)
     print ("Received File:",data.strip())
     f = open('./Cliente/' + repr(data.strip())[2:-1],"wb")
@@ -31,7 +29,6 @@ try:
     data, address = sock.recvfrom(buffer)
     while data:
         f.write(data)
-        sock.settimeout(2)
         digestGenerado.update(data)
         data,addr = sock.recvfrom(buffer)
         if (data == END_TRANSMISSION):
