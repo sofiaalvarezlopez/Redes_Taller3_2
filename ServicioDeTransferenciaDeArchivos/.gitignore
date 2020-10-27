@@ -1,4 +1,3 @@
 /Cliente/files/*
 /Servidor/files/*
 */__pycache__
-/Servidor/logs/*
