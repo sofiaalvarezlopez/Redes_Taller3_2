@@ -9,7 +9,8 @@ import sys
 from udp_monitor2 import Monitor
 
 BUFFER_SIZE = 1024
-serverAddress = ('localhost', 10000)
+serverAddress = ('54.226.145.99', 10000)
+#serverAddress = ('localhost', 10000)
 BEG_RECV = b'BEG_RECV'
 OK = b'OK'
 ERR = b'ERR'
@@ -69,8 +70,8 @@ class ClientHandler(Thread):
         #print('El cliente ' + self.ip + ':' + str(self.port) + ' recibio ' + str(stats['bytes_received']) + ' bytes')
         stats = self.monitor.getReport()
         print(stats)
-        self.log.write(stats)
-        self.log.write(self.address[0] + ':' + str(self.address[1]) + ';' + repr(entregaExitosa)[2:-1] + ';' + str(duracionTransmision.total_seconds()) + ';\n')
+        #self.log.write(stats)
+        self.log.write(self.address[0] + ':' + str(self.address[1]) + ';' + repr(entregaExitosa)[2:-1] + ';' + str(duracionTransmision.total_seconds()) + ';' + str(stats['Packets_sent']) + ';' + str(stats['Bytes_sent']) +';\n')
         
         print('Finalizando exitosamente la comunicacion con: ' + self.address[0] + ':' + str(self.address[1]))
         print('Enviando comando: ', repr(FIN))

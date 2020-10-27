@@ -25,7 +25,8 @@ class Monitor:
 
     def getReport(self):
         if self.done:
-            return 'Host: {} Port: {} Client: {} File: {} Success: {} Packets_sent: {} Bytes_sent: {} Duration: {}'.format(self.host, self.port, self.client, self.filename, self.success, len(self.len_data), sum(self.len_data), self.total_time)
+            return {'Success': self.success, 'Packets_sent': len(self.len_data), 'Bytes_sent': sum(self.len_data)}
+            #return 'Host: {} Port: {} Client: {} File: {} Success: {} Packets_sent: {} Bytes_sent: {} Duration: {}'.format(self.host, self.port, self.client, self.filename, self.success, len(self.len_data), sum(self.len_data), self.total_time)
         else:
             return 'Monitoring not finished. Host: {} Port: {} Client: {} File: {} Success: {} Packets_sent: {} Bytes_sent: {}'.format(self.host, self.port, self.client, self.filename, self.success, len(self.len_data), sum(self.len_data))
             
