@@ -12,6 +12,7 @@ sock.settimeout(0.2)
 #IP de la instancia/MV/maquina donde se corre el servidor. para correr de manera local, usar localhost
 serverAddress = ('54.226.145.99', 10000)
 serverAddress = ('localhost', 10000)
+serverAddress = ('ec2-54-226-145-99.compute-1.amazonaws.com', 10000)
 #Comando que indica que el cliente esta listo para recibir archivos
 BEG_RECV = b'BEG_RECV'
 SEND = b'SEND'

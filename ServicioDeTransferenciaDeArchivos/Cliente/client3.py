@@ -8,13 +8,16 @@ from udp_monitor2 import Monitor
 
 #Se crea un socket para manejar la comunicacion cliente-servidor
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-sockTcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+tcpsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.settimeout(0.2)
 #IP de la instancia/MV/maquina donde se corre el servidor. para correr de manera local, usar localhost
 serverAddress = ('54.226.145.99', 10000)
+serverAddress = ('localhost', 10000)
 serverAddress = ('ec2-54-226-145-99.compute-1.amazonaws.com', 10000)
-#serverAddress = ('localhost', 10000)
 #Comando que indica que el cliente esta listo para recibir archivos
 BEG_RECV = b'BEG_RECV'
+SEND = b'SEND'
+RECV = b'RECV'
 #Comando que indica que el archivo se recibio correctamente 
 OK = b'OK'
 #Comando que indica que hubo un error en la comunicacion o que el archivo no se recibio adecuadamente
@@ -29,11 +32,41 @@ buffer = 1024
 monitor = Monitor(serverAddress[0], serverAddress[1], '', '')
 
 try:
+    tcpsock.connect(serverAddress)
     #Se envia el mensaje de que se esta listo para recibir archivos
     print('El cliente esta listo para recibir archivos: {}'.format(BEG_RECV))
     sent = sock.sendto(BEG_RECV, serverAddress)
-    #Se obtiene el nombre del archivo que se debe enviar
     data, address = sock.recvfrom(buffer)
+    print('Esperando SEND')
+    cent = False
+    while not cent:
+        try:
+            print('Esperando SEND')
+            data, address = sock.recvfrom(buffer)
+            print(data)
+            if data == SEND:
+                cent = True
+                print('REcibido SEND')
+            else:
+                print('Reenviando BEG_RECV')
+                sent = sock.sendto(BEG_RECV, serverAddress)
+        except:
+            pass
+    cent = False
+    print(SEND, 'recibido')
+    data = SEND
+    while not cent:
+        try:
+            print('Esperando nomre')
+            data, address = sock.recvfrom(buffer)
+            if data != SEND:
+                cent = True
+            else:
+                sent = sock.sendto(RECV, serverAddress)
+                print('Reenviando RECV')
+        except:
+            pass
+    #Se obtiene el nombre del archivo que se debe enviar
     print ("Archivo a recibir:",data.strip())
     #Se crea el archivo donde se almacenaran los datos
     f = open('./Cliente/' + repr(data.strip())[2:-1], "wb")
@@ -93,3 +126,4 @@ try:
     
 finally:
     sock.close()
+    tcpsock.close()
